@@ -87,7 +87,7 @@ pub fn find_host_terminal(start_pid: u32, procs: &[ProcInfo]) -> Option<HostTerm
     let mut cur = start_pid;
 
     for _ in 0..64 {
-        let proc = by_pid(cur)?;
+        let Some(proc) = by_pid(cur) else { break };
         let kind = classify_comm(&proc.exe);
         if kind != TerminalKind::Unknown {
             candidates.push(HostTerminal { pid: cur, kind });
