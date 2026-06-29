@@ -6,7 +6,7 @@
  */
 export type FocusResult = { 
 /**
- * Name of the app brought to the front ("Ghostty" / "Visual Studio Code" / "Terminal"). Always valid since it is only returned on success.
+ * Name of the app brought to the front (e.g. "Visual Studio Code" / "Windows Terminal" / "PowerShell"). Always valid since it is only returned on success.
  */
 app: string, 
 /**

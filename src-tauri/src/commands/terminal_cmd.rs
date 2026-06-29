@@ -8,12 +8,11 @@ use sysinfo::System;
 use tauri::State;
 
 /// VS Code CLI 候補パスを優先順に返す。
-/// 1. PATH 上の code / code.cmd（VS Code インストーラーが標準で追加）
+/// 1. PATH 上の code.cmd（VS Code インストーラーが標準で追加）
 /// 2. ユーザーインストールパス（%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd）
 /// 3. システムインストールパス（%ProgramFiles%\Microsoft VS Code\bin\code.cmd）
 pub fn vscode_cli_candidates() -> Vec<PathBuf> {
     let mut candidates = vec![
-        PathBuf::from("code"),
         PathBuf::from("code.cmd"),
     ];
     if let Ok(local) = std::env::var("LOCALAPPDATA") {
@@ -134,6 +133,10 @@ pub async fn focus_terminal(
         }
 
         // 3b. その他: EnumWindows + SetForegroundWindow（ベストエフォート）
+        // Note: classic conhost.exe ホスト（スタンドアロン PowerShell/Cmd/Git Bash）では
+        // 可視ウィンドウが shell の子プロセス conhost.exe に帰属するため、
+        // shell PID では EnumWindows がヒットせず window_focused=false になる場合がある。
+        // Windows 11 で Windows Terminal がデフォルトコンソールホストの場合はこの問題は発生しない。
         let window_focused = focus_window_by_pid(host.pid);
         Ok(FocusResult {
             app: app_name.to_string(),
@@ -162,10 +165,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn vscode_cli_candidates_starts_with_code_in_path() {
+    fn vscode_cli_candidates_starts_with_code_cmd() {
         let candidates = vscode_cli_candidates();
-        assert_eq!(candidates[0], PathBuf::from("code"));
-        assert_eq!(candidates[1], PathBuf::from("code.cmd"));
+        assert_eq!(candidates[0], PathBuf::from("code.cmd"));
     }
 
     #[test]
